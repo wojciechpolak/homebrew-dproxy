@@ -1,0 +1,91 @@
+name: CI
+
+# Formula/dproxy.rb is written by the release workflow in wojciechpolak/dproxy.
+# This tap checks the exact file users install after it arrives here.
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  formula:
+    name: Audit and install (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set up Homebrew and this tap
+        id: tap
+        uses: Homebrew/actions/setup-homebrew@8f3d1ec8a696b3b9d9a6c3696b6c73033cab69e4 # 2026.08.14.1
+
+      # The initial tap commit has a marker instead of a fake formula. The first
+      # stable dproxy release replaces it, and a later missing formula is an
+      # error rather than a skipped check.
+      - name: Check for a published formula
+        id: formula
+        env:
+          TAP_PATH: ${{ steps.tap.outputs.repository-path }}
+        run: |
+          if test -f "$TAP_PATH/Formula/dproxy.rb"; then
+            echo 'present=true' >> "$GITHUB_OUTPUT"
+          elif test -f "$TAP_PATH/.formula-pending"; then
+            echo 'present=false' >> "$GITHUB_OUTPUT"
+            echo 'No stable dproxy formula has been published yet.'
+          else
+            echo 'Formula/dproxy.rb is missing.' >&2
+            exit 1
+          fi
+
+      - name: Formula style
+        if: steps.formula.outputs.present == 'true'
+        run: brew style --formula "${{ steps.tap.outputs.tap-name }}/dproxy"
+
+      - name: Formula audit
+        if: steps.formula.outputs.present == 'true'
+        run: brew audit --strict --formula "${{ steps.tap.outputs.tap-name }}/dproxy"
+
+      - name: Install the release archive
+        if: steps.formula.outputs.present == 'true'
+        env:
+          FORMULA: ${{ steps.tap.outputs.tap-name }}/dproxy
+        run: brew install "$FORMULA"
+
+      - name: Check the installed version
+        if: steps.formula.outputs.present == 'true'
+        env:
+          FORMULA: ${{ steps.tap.outputs.tap-name }}/dproxy
+        run: |
+          expected="$(brew info --json=v2 --formula "$FORMULA" | jq -r '.formulae[0].versions.stable')"
+          actual="$(dproxy --version)"
+          case "$actual" in
+            "dproxy v${expected} "*) ;;
+            *) echo "formula installs $expected but dproxy reports: $actual" >&2; exit 1 ;;
+          esac
+          echo "$actual"
+
+      - name: Run the offline diagnostic check
+        if: steps.formula.outputs.present == 'true'
+        run: |
+          set +e
+          output="$(dproxy test 2>&1)"
+          exit_status="$?"
+          set -e
+          test "$exit_status" -eq 2
+          printf '%s\n' "$output" | grep -F 'the relay URL is required'
+
+      - name: Formula test block
+        if: steps.formula.outputs.present == 'true'
+        env:
+          FORMULA: ${{ steps.tap.outputs.tap-name }}/dproxy
+        run: brew test "$FORMULA"
+
+      - name: Uninstall
+        if: steps.formula.outputs.present == 'true'
+        run: brew uninstall dproxy
