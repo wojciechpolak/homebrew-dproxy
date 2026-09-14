@@ -12,25 +12,25 @@ class Dproxy < Formula
 
   on_macos do
     on_arm do
-      url "https://github.com/wojciechpolak/dproxy/releases/download/v1.1.0/dproxy_v1.1.0_darwin_arm64.tar.gz"
-      sha256 "3264e33fb72efc36ac757d8f1dc18f9c997e44588a849ef1e7c0dfd404f954fb"
+      url "https://github.com/wojciechpolak/dproxy/releases/download/v1.2.0/dproxy_v1.2.0_darwin_arm64.tar.gz"
+      sha256 "3b0b2c0c02202e58fbfbb0887dbbb33eeea75d2d4774d52f6c17db07d79ec04e"
     end
 
     on_intel do
-      url "https://github.com/wojciechpolak/dproxy/releases/download/v1.1.0/dproxy_v1.1.0_darwin_amd64.tar.gz"
-      sha256 "605a8dc00179cf341e7a8c853752a184ccdcbd5349a41ead4740bbbef207a5c9"
+      url "https://github.com/wojciechpolak/dproxy/releases/download/v1.2.0/dproxy_v1.2.0_darwin_amd64.tar.gz"
+      sha256 "cdaec98220d7e13bc75b32842bb8fcd924e9f4a25101fae7dee31a0c6109748f"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/wojciechpolak/dproxy/releases/download/v1.1.0/dproxy_v1.1.0_linux_arm64.tar.gz"
-      sha256 "3312c096383f782620a63ce1cad0781555f6b481e93b04cc23200bdf54611422"
+      url "https://github.com/wojciechpolak/dproxy/releases/download/v1.2.0/dproxy_v1.2.0_linux_arm64.tar.gz"
+      sha256 "aeefb3c933b8490b61b7781491e4132062d2b39b9d84bd35867dd0fd8397bda1"
     end
 
     on_intel do
-      url "https://github.com/wojciechpolak/dproxy/releases/download/v1.1.0/dproxy_v1.1.0_linux_amd64.tar.gz"
-      sha256 "4142b7f711c91e34ecfe0e836da4b9eb591eacaab8daa4721ff3b3417c280cd0"
+      url "https://github.com/wojciechpolak/dproxy/releases/download/v1.2.0/dproxy_v1.2.0_linux_amd64.tar.gz"
+      sha256 "ebe508bc0d2066a353024165b8d6f827c2ca99905fcad2bbe3550313c214a555"
     end
   end
 
